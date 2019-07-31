@@ -1,4 +1,4 @@
-package com.liang.design;
+package com.liang.design.singleton;
 
 import java.io.Serializable;
 

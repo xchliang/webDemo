@@ -1,4 +1,4 @@
-package com.liang.design;
+package com.liang.design.singleton;
 
 import com.liang.util.SerializeUtil;
 
@@ -8,16 +8,16 @@ import java.lang.reflect.InvocationTargetException;
 public class SingletonTest {
 
     public static void main(String[] args) {
-        testDCL();
-        //reflectTest("com.liang.design.Singleton");
+        //testDCL();
+        //reflectTest("com.liang.design.singleton.Singleton");
         //静态内部类方式，反射攻击，不安全
-        //reflectTest("com.liang.design.SingletonInner");
+        //reflectTest("com.liang.design.singleton.SingletonInner");
         //enumTest();
-        // reflectTest("com.liang.design.SingletonEnum");
-        //reflectTest("com.liang.design.SingletonInner");
+        // reflectTest("com.liang.design.singleton.SingletonEnum");
+        //reflectTest("com.liang.design.singleton.SingletonInner");
         // System.out.println(SingletonInner.getInstance().hashCode());
-        // seri();
-        seri2();
+        seri();
+        //seri2();
     }
 
     private static void testDCL() {
@@ -74,7 +74,7 @@ public class SingletonTest {
      */
     private static void seri() {
         final byte[] b = SerializeUtil.serialize(SingletonDCL.getInstance());
-        for (int i = 0; i < 100; i++) {
+        for (;;) {
             new Thread() {
                 @Override
                 public void run() {

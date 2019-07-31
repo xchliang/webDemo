@@ -1,4 +1,4 @@
-package com.liang.design;
+package com.liang.design.singleton;
 
 /**
  * 单例模式

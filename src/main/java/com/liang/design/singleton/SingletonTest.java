@@ -18,6 +18,7 @@ public class SingletonTest {
         // System.out.println(SingletonInner.getInstance().hashCode());
         seri();
         //seri2();
+        SingletonEnum instance = SingletonEnum.INSTANCE;
     }
 
     private static void testDCL() {

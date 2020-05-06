@@ -7,5 +7,9 @@ package com.liang.design.singleton;
  * 因此，《Effective Java》作者推荐使用的方法。
  */
 public enum SingletonEnum {
-    INSTANCE
+    INSTANCE;
+
+    public void doSomething(){
+        System.out.println(" do something...");
+    }
 }

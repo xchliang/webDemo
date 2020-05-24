@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 public class RecoverFile {
     String logPath;
     RandomAccessFile raf;
-    long pos = -1;
+    private long pos = -1;
 
     public static void main(String[] args) {
         //String path = System.getProperty("user.dir");
@@ -30,11 +30,13 @@ public class RecoverFile {
             System.out.println(temp);
             if((temp=temp.trim()).length()>0){
                 pArr = temp.split(">>>");
-                if (pArr != null && pArr.length>0) {
+                if (pArr.length>0) {
                     f1 = new File(pArr[0].trim());
                     f2 = new File(pArr[1].trim());
                     if (!f1.exists() && f2.exists()){
-                        f2.renameTo(f1);
+                        boolean b = f2.renameTo(f1);
+                        if (!b)
+                            System.out.println("恢复文件失败！"+temp);
                     } else{
                         System.out.println(String.format("恢复文件失败！%s %s %s %s %s", temp, pArr[0], (f1.exists() ? "存在" : "不存在"), pArr[1], (f2.exists() ? "存在" : "不存在")));
                     }
@@ -63,11 +65,11 @@ public class RecoverFile {
             int c;
             String temp;
             while (pos >= 0) {
-                raf.seek(pos);
+                raf.seek(pos--);
                 /* 换行符：'\n'或10  回车符：'\r'或13
                    windows回车和换行是两个字符，用于换行；但是也可能只有回车符或只有换行符。
                    文件开始位置，没有回车、换行符  */
-                if (pos == 0 || (c = raf.read()) == '\r' || c == '\n') {
+                if (pos < 0 || (c = raf.read()) == '\r' || c == '\n') {
                     //RandomAccessFile读取文件时，用ISO-8859-1编码
                     temp = new String(raf.readLine().getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
                     if (pos > 0) {//未到达文件头部，可继续向前移动指针，判读回车换行符
@@ -77,10 +79,8 @@ public class RecoverFile {
                             pos--;
                         }
                     }
-                    pos--;
                     return temp;
                 }
-                pos--;
             }
         } catch (IOException e) {
             e.printStackTrace();

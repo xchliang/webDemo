@@ -33,10 +33,18 @@ public class RenameFile {
 			//当前正在运行的文件
 			String runningFilePath = System.getProperty("java.class.path");
 			FileFilter filter = new FileFilter() {
+				String[] ingnorFile;
+				public FileFilter params(String[] ingnorFile){
+					return this;
+				}
 				@Override
 				public boolean accept(File pathname) {
-					if(Objects.equals(pathname.getPath(), runningFilePath) || Objects.equals(pathname.getPath(), logPath)){
-						return false;
+					if (ingnorFile != null && ingnorFile.length>0) {
+						for (String s : ingnorFile) {
+							if(Objects.equals(pathname.getPath(), s)){
+								return false;
+							}
+						}
 					}
 					String name = pathname.getName();
 					if (pathname.isFile() && name.indexOf(".") > 0) {
@@ -45,7 +53,7 @@ public class RenameFile {
 					}
 					return true;
 				}
-			};
+			}.params(new String[]{runningFilePath,logPath});
 
 			File[] files = dir.listFiles(filter);
 			if (files != null && files.length>0) {

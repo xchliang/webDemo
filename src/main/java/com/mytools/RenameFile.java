@@ -18,7 +18,26 @@ public class RenameFile {
 
 	public static void main(String[] args) {
 		renameCurrentPath();
+		//readChar();
 	}
+
+	private static void readChar() {
+		String path = "F:\\test";
+		String logPath = path+ File.separator+"path.txt";
+
+		try {
+			RandomAccessFile raf = new RandomAccessFile(logPath,"r");
+			int c;
+			while ((c=raf.read())!=-1) {
+				System.out.println(c);
+			};
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	public RenameFile(String logPath) {
 		this.logPath = logPath;
@@ -27,8 +46,7 @@ public class RenameFile {
 	public static void renameCurrentPath() {
 		//当前工作目录
 //		String path = System.getProperty("user.dir");
-//		String path = "F:\\test";
-		String path= "G:\\study\\projects\\webDemo\\out\\artifacts\\renameFile";
+		String path = "H:\\testss\\data";
 		String logPath = path+File.separator+"path.txt";
 		RenameFile rn = new RenameFile(logPath);
 		File dir = new File(path);
@@ -107,10 +125,11 @@ public class RenameFile {
 			}while(nFile==null || nFile.exists());
 
 			boolean b = file.renameTo(nFile);
+			String content = file.getPath() + " >>> " + nFile.getPath();
 			if (b){
-				writeContent(file.getPath()+" >>> "+nFile.getPath());
+				writeContent(content);
 			}else{
-				System.out.println(String.format("文件重命名失败！原：%s 新：%s",file.getPath(),nFile.getPath()));
+				System.out.println(String.format("文件重命名失败！", content));
 			}
 		}
 

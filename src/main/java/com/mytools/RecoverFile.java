@@ -13,8 +13,7 @@ public class RecoverFile {
 
     public static void main(String[] args) {
 //        String path = System.getProperty("user.dir");
-        String path = "F:\\test";
-//        String path= "G:\\study\\projects\\webDemo\\out\\artifacts\\renameFile";
+        String path = "H:\\testss\\data";
         new RecoverFile(path+ File.separator+"path.txt").recover();
     }
 
@@ -76,7 +75,7 @@ public class RecoverFile {
                     }
                     if (pos > 0) {//未到达文件头部，可继续向前移动指针，判读回车换行符
                         //跳过回车和换行两个字符
-                        raf.seek(pos - 1);
+                        raf.seek(pos);
                         if ((c = raf.read()) == '\r' || c == '\n') {
                             pos--;
                         }

@@ -18,11 +18,10 @@ public class ClearFile {
     public static void clearCurrentPath() {
         //当前工作目录。可执行jar运行时，获取当前工作目录
 //        String path = System.getProperty("user.dir");
-//        String path = "F:\\test";
-        String path= "G:\\study\\projects\\webDemo\\out\\artifacts\\renameFile";
+        String path = "H:\\testss\\data";
         File dir = new File(path);
         //为了安全，禁止直接清除磁盘根目录
-        if (dir.getParentFile() != null && dir.getParentFile().getParentFile() != null) {
+        if (dir.exists() && dir.getParentFile() != null) {
             FilenameFilter filter = new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {

@@ -17,11 +17,12 @@ public class ClearFile {
      */
     public static void clearCurrentPath() {
         //当前工作目录。可执行jar运行时，获取当前工作目录
-        //String path = System.getProperty("user.dir");
-        String path = "F:\\test";
+//        String path = System.getProperty("user.dir");
+//        String path = "F:\\test";
+        String path= "G:\\study\\projects\\webDemo\\out\\artifacts\\renameFile";
         File dir = new File(path);
         //为了安全，禁止直接清除磁盘根目录
-        if (dir.getParent() != null) {
+        if (dir.getParentFile() != null && dir.getParentFile().getParentFile() != null) {
             FilenameFilter filter = new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
@@ -60,18 +61,15 @@ public class ClearFile {
      */
     public static void clearFiles(File[] files, FilenameFilter filter) {
         if (files == null || files.length == 0) return;
-        String path;
         File[] list;
         for (File f : files) {
             if (f.exists()) {
-                path = f.getPath();
                 if (f.isFile()) {
-                    //clearFile(path);//直接清空
-                    coverAndClearFile(path);//先覆盖，后清空
+                    coverAndClear(f);//先覆盖，后清空
                 } else {
                     list = f.listFiles(filter);
                     if (list != null && list.length>0) {
-                        clearFiles(list);
+                        clearFiles(list, filter);
                     }
                 }
             }
@@ -80,60 +78,63 @@ public class ClearFile {
 
     /**
      * 清空文件内容
-     * @param filePath 文件路径
+     * @param file 文件
      */
-    private static void clearFile(String filePath) {
-        if (filePath != null) {
-            System.out.println("清理：" + filePath);
+    public static boolean clearNull(File file) {
+        if (file != null && file.exists() && file.isFile()) {
             FileOutputStream fos=null;
             try {
-                File file = new File(filePath);
-                if (file.exists()) {
-                    //覆盖
-                    fos = new FileOutputStream(file, false);
-                    fos.write(new byte[0]);//空数组覆盖
-                }
+                //覆盖，完全清空
+                fos = new FileOutputStream(file, false);
+                fos.write(new byte[0]);//空数组覆盖
             } catch (IOException e) {
                 e.printStackTrace();
+                return false;
             } finally {
                 close(fos);
             }
         }
+        return true;
     }
 
     /**
      * 覆盖清空文件内容
-     * @param filePath 文件路径
+     * @param file 文件
      */
-    private static void coverAndClearFile(String filePath) {
-        if (filePath != null) {
-            System.out.println("清理：" + filePath);
-            File file = new File(filePath);
-            if (!file.exists() || file.isDirectory()) return;
+    public static void coverAndClear(File file) {
+        if (file != null && file.exists() && file.isFile()) {
+            coverBlank(file);
+            clearNull(file);
+        }
+    }
+
+    /**
+     * 文件内容覆盖为空
+     * @param file 文件
+     * @return
+     */
+    public static boolean coverBlank(File file) {
+        if (file != null && file.exists() && file.isFile()) {
             RandomAccessFile raf = null;
-            FileOutputStream fos = null;
             try {
-                raf = new RandomAccessFile(filePath, "rws");
+                raf = new RandomAccessFile(file, "rws");
                 long length = raf.length();
                 int blen = 1024*1024;
                 blen = length<blen ? (int)length : blen;
                 byte[] bytes = new byte[blen];
-                System.out.println("length:"+length);
                 raf.write(bytes);
                 while (raf.getFilePointer()<length+blen) {
                     //写入空字符，覆盖内容
                     raf.write(bytes);
                 }
-                fos = new FileOutputStream(filePath,false);
-                fos.write(new byte[0]);
-                fos.flush();
-                System.out.println(String.format("清空[%s]文件内容结束！",filePath));
             } catch (IOException e) {
                 e.printStackTrace();
+                return false;
             } finally {
-                close(raf,fos);
+                close(raf);
             }
         }
+        return true;
     }
 
     private static void close(Closeable... closeables) {
@@ -141,6 +142,9 @@ public class ClearFile {
             for (Closeable c : closeables) {
                 if (c != null) {
                     try {
+                        if(c instanceof Flushable){
+                            ((Flushable) c).flush();
+                        }
                         c.close();
                     } catch (IOException e) {
                         e.printStackTrace();

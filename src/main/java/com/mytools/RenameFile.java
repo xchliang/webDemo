@@ -1,6 +1,8 @@
 package com.mytools;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Random;
 
@@ -10,8 +12,9 @@ import java.util.Random;
  *
  */
 public class RenameFile {
-	FileOutputStream fos;
+	BufferedWriter out;
 	String logPath;
+	boolean close=false;
 
 	public static void main(String[] args) {
 		renameCurrentPath();
@@ -23,25 +26,27 @@ public class RenameFile {
 
 	public static void renameCurrentPath() {
 		//当前工作目录
-		//String path = System.getProperty("user.dir");
-		String path = "F:\\test";
+//		String path = System.getProperty("user.dir");
+//		String path = "F:\\test";
+		String path= "G:\\study\\projects\\webDemo\\out\\artifacts\\renameFile";
 		String logPath = path+File.separator+"path.txt";
 		RenameFile rn = new RenameFile(logPath);
 		File dir = new File(path);
 		//为了安全，禁止直接操作磁盘根目录
-		if(dir.exists() && dir.getParentFile()!=null){
+		if(dir.exists() && dir.getParentFile()!=null && dir.getParentFile().getParentFile()!=null){
 			//当前正在运行的文件
 			String runningFilePath = System.getProperty("java.class.path");
 			FileFilter filter = new FileFilter() {
-				String[] ingnorFile;
-				public FileFilter params(String[] ingnorFile){
+				String[] ignoreFile;
+				public FileFilter params(String[] ignoreFile){
+					this.ignoreFile = ignoreFile;
 					return this;
 				}
 				@Override
 				public boolean accept(File pathname) {
-					if (ingnorFile != null && ingnorFile.length>0) {
-						for (String s : ingnorFile) {
-							if(Objects.equals(pathname.getPath(), s)){
+					if (ignoreFile != null && ignoreFile.length>0) {
+						for (String s : ignoreFile) {
+							if(Objects.equals(pathname.getPath(), new File(s).getPath())){
 								return false;
 							}
 						}
@@ -58,38 +63,24 @@ public class RenameFile {
 			File[] files = dir.listFiles(filter);
 			if (files != null && files.length>0) {
 				//重命名文件
-				rn.renameFiles(files,null);
+				rn.rename(files,null);
 			}
 		}
 		System.out.println("重命名结束！");
 	}
 
-	private void renameFiles(File[] files, FileFilter filter){
-		if (files==null || files.length==0) return;
-		boolean close = false;
-		if (fos==null){
-			close = true;
-			//创建日志文件
-			File pathFile = new File(logPath);
-			if(!pathFile.exists()){
-				try {
-					boolean newFile = pathFile.createNewFile();
-					if(!newFile) return;
-				} catch (IOException e) {
-					e.printStackTrace();
-					return;
-				}
-			}
-			try {
-				fos = new FileOutputStream(pathFile);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
+	public void rename(File[] files, FileFilter filter){
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String time = sdf.format(new Date());
+		writeContent(String.format("================ %s =====================",time));
+		renameFiles(files, filter);
+		close(out);
+	}
 
+	public void renameFiles(File[] files, FileFilter filter){
+		if (files==null || files.length==0) return;
 		Random ra = new Random();
-		int bound=100000;
-		int nName;
+		int nName, min=10000, bound=9*min;
 		File nFile = null;
 		for (File file : files) {
 			if (file==null || !file.exists()){
@@ -105,9 +96,10 @@ public class RenameFile {
 				if((System.currentTimeMillis()-st)>1000*10){
 					//System.exit(0);//获取新名称超过10秒，终止程序
 					bound *= 10;//随机数文件名重复率高，扩大范围
+					min *= 10;
 				}
 				try {
-					nName = ra.nextInt(bound-bound/10)+bound/10;//随机数
+					nName = ra.nextInt(bound)+min;//随机数
 					nFile = new File(file.getParent()+File.separator+nName);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -121,26 +113,56 @@ public class RenameFile {
 				System.out.println(String.format("文件重命名失败！原：%s 新：%s",file.getPath(),nFile.getPath()));
 			}
 		}
-		if (close) close(fos);
+
 	}
 	
 	//写入文件
-	public void writeContent(String content){
-		if(fos!=null){
+	private void writeContent(String content){
+		if (out == null){
+			//创建日志文件
+			File pathFile = new File(logPath);
+			if(!pathFile.exists()){
+				try {
+					boolean newFile = pathFile.createNewFile();
+					if(!newFile) return;
+				} catch (IOException e) {
+					e.printStackTrace();
+					return;
+				}
+			}
 			try {
-				fos.write("\r\n".getBytes());
-				fos.write(content.getBytes());
+				out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(pathFile, true),"UTF-8"));
+				if (pathFile.length()>0){
+					out.newLine();
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if(out !=null){
+			try {
+			    if (content!=null) {
+			        out.write(content);
+                }
+				out.newLine();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
-	public static void close(Closeable... closeables) {
+	private static void close(Closeable... closeables) {
 		if (closeables != null && closeables.length != 0) {
 			for (Closeable c : closeables) {
 				if (c != null) {
 					try {
+						if(c instanceof Flushable){
+							((Flushable) c).flush();
+						}
 						c.close();
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -150,5 +172,4 @@ public class RenameFile {
 		}
 	}
 
-	
 }

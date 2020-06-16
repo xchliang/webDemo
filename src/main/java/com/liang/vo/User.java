@@ -7,6 +7,10 @@ public class User {
     public Integer age;
     public String address;
 
+    public User(){
+
+    }
+
     public User(String name, Integer age) {
         this.name = name;
         this.age = age;
@@ -48,5 +52,10 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(name, age);
+    }
+
+    @Override
+    public String toString() {
+        return "{name:"+name+",address:"+address+",age:"+age+"}";
     }
 }

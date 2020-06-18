@@ -33,6 +33,7 @@ public class JdkProxy implements InvocationHandler {
         System.out.println("目标对象方法执行前。。。");
         //调用目标对象方法
         Object invoke = method.invoke(target, args);
+        System.out.println("方法名："+method.getName());
         //调用目标对象方法后处理
         System.out.println("目标对象方法执行后。。。");
         return invoke;

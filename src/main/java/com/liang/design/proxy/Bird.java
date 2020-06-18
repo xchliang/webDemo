@@ -10,4 +10,12 @@ public class Bird implements IBird {
     public void fly() {
         System.out.println(name+" can fly!");
     }
+
+    @Override
+    public String eat(String food) {
+        System.out.println(name+" eat " +food);
+        return food+" ok!";
+    }
+
+
 }

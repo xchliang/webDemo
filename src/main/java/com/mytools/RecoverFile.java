@@ -7,14 +7,37 @@ import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 
 public class RecoverFile {
+    static String accessPath="testss";
     String logPath;
     RandomAccessFile raf;
     private long pos = -1;
 
     public static void main(String[] args) {
-//        String path = System.getProperty("user.dir");
-        String path = "H:\\testss\\data";
-        new RecoverFile(path+ File.separator+"path.txt").recover();
+        String path = System.getProperty("user.dir");
+//        String path = "H:\\testss\\jar";
+        System.out.println(path);
+        if (validPath(path)){
+            String logPath = path.substring(0, path.indexOf(accessPath)+accessPath.length())
+                    + File.separator + "data" + File.separator + "path.txt";
+            System.out.println("logFile: "+logPath);
+            new RecoverFile(logPath).recover();
+        }
+    }
+
+    public static boolean validPath(String path) {
+        int beginIndex = path.indexOf(File.separator) + 1;
+        if (beginIndex<1){
+            return false;
+        }
+        int endIndex = path.indexOf(File.separator, beginIndex);
+        String dir;
+        if (endIndex > beginIndex){
+            dir = path.substring(beginIndex, endIndex);
+        }else {
+            dir = path.substring(beginIndex);
+        }
+        System.out.println(dir);
+        return accessPath.equals(dir);
     }
 
     public RecoverFile(String logPath) {
@@ -37,7 +60,7 @@ public class RecoverFile {
                         if (!b)
                             System.out.println("恢复文件失败！"+temp);
                     } else{
-                        System.out.println(String.format("恢复文件失败！%s %s %s %s %s", temp, pArr[0], (f1.exists() ? "存在" : "不存在"), pArr[1], (f2.exists() ? "存在" : "不存在")));
+                        System.out.printf("恢复文件失败！%s %s %s %s %s%n", temp, pArr[0], (f1.exists() ? "存在" : "不存在"), pArr[1], (f2.exists() ? "存在" : "不存在"));
                     }
                 }
             }

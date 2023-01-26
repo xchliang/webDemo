@@ -8,8 +8,25 @@ import java.io.*;
  * @author xcl
  */
 public class ClearFile {
+    static String accessPath="testss";
     public static void main(String[] args) {
         clearCurrentPath();
+    }
+
+    public static boolean validPath(String path) {
+        int beginIndex = path.indexOf(File.separator) + 1;
+        if (beginIndex<1){
+            return false;
+        }
+        int endIndex = path.indexOf(File.separator, beginIndex);
+        String dir;
+        if (endIndex > beginIndex){
+            dir = path.substring(beginIndex, endIndex);
+        }else {
+            dir = path.substring(beginIndex);
+        }
+        System.out.println(dir);
+        return accessPath.equals(dir);
     }
 
     /**
@@ -17,11 +34,20 @@ public class ClearFile {
      */
     public static void clearCurrentPath() {
         //当前工作目录。可执行jar运行时，获取当前工作目录
-//        String path = System.getProperty("user.dir");
-        String path = "H:\\testss\\data";
-        File dir = new File(path);
+        String path = System.getProperty("user.dir");
+//        String path = "H:\\testss\\jar";
+        clearPath(path);
+    }
+    public static void clearPath(String path) {
+        if(!validPath(path)){
+            System.out.println("非指定路径，拒绝执行！");
+            return;
+        }
+        String dataPath = path.substring(0, path.indexOf(accessPath) + accessPath.length())
+                + File.separator + "data";
+        File dir = new File(dataPath);
         //为了安全，禁止直接清除磁盘根目录
-        if (dir.exists() && dir.getParentFile() != null) {
+        if (dir.exists() && dir.getParentFile() != null && dir.getParentFile().getParentFile() != null) {
             FilenameFilter filter = new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
@@ -110,7 +136,7 @@ public class ClearFile {
     /**
      * 文件内容覆盖为空
      * @param file 文件
-     * @return
+     * @return 是否成功
      */
     public static boolean coverBlank(File file) {
         if (file != null && file.exists() && file.isFile()) {

@@ -1,6 +1,7 @@
 package com.mytools;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
@@ -12,6 +13,7 @@ import java.util.Random;
  *
  */
 public class RenameFile {
+	static String accessPath="testss";
 	BufferedWriter out;
 	String logPath;
 	boolean close=false;
@@ -30,7 +32,7 @@ public class RenameFile {
 			int c;
 			while ((c=raf.read())!=-1) {
 				System.out.println(c);
-			};
+			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -43,13 +45,39 @@ public class RenameFile {
 		this.logPath = logPath;
 	}
 
+	public static boolean validPath(String path) {
+		int beginIndex = path.indexOf(File.separator) + 1;
+		if (beginIndex<1){
+			return false;
+		}
+		int endIndex = path.indexOf(File.separator, beginIndex);
+		String dir;
+		if (endIndex > beginIndex){
+			dir = path.substring(beginIndex, endIndex);
+		}else {
+			dir = path.substring(beginIndex);
+		}
+		System.out.println(dir);
+		return accessPath.equals(dir);
+	}
+
 	public static void renameCurrentPath() {
 		//当前工作目录
-//		String path = System.getProperty("user.dir");
-		String path = "H:\\testss\\data";
-		String logPath = path+File.separator+"path.txt";
+		String path = System.getProperty("user.dir");
+		//String path = "H:\\testss\\jar";
+		renamePath(path);
+	}
+	public static void renamePath(String path) {
+		if(!validPath(path)){
+			System.out.println("非指定路径，拒绝执行！");
+			return;
+		}
+		String dataPath = path.substring(0, path.indexOf(accessPath) + accessPath.length())
+				+ File.separator + "data";
+		String logPath = dataPath + File.separator + "path.txt";
+		System.out.println("logFile: "+logPath);
 		RenameFile rn = new RenameFile(logPath);
-		File dir = new File(path);
+		File dir = new File(dataPath);
 		//为了安全，禁止直接操作磁盘根目录
 		if(dir.exists() && dir.getParentFile()!=null && dir.getParentFile().getParentFile()!=null){
 			//当前正在运行的文件
@@ -129,7 +157,7 @@ public class RenameFile {
 			if (b){
 				writeContent(content);
 			}else{
-				System.out.println(String.format("文件重命名失败！", content));
+				System.out.printf("文件重命名失败！%s", content);
 			}
 		}
 
@@ -150,7 +178,7 @@ public class RenameFile {
 				}
 			}
 			try {
-				out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(pathFile, true),"UTF-8"));
+				out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(pathFile, true), StandardCharsets.UTF_8));
 				if (pathFile.length()>0){
 					out.newLine();
 				}

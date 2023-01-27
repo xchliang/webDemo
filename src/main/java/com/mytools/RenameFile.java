@@ -9,6 +9,7 @@ import java.util.Random;
 
 /**
  * 重命名文件
+ * 随机数重命名
  * @author xcl
  *
  */

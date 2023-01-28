@@ -45,7 +45,7 @@ public class RecoverFile {
     }
 
     public void recover(){
-        String temp;
+        String temp,oldPath,newPath;
         String[] pArr;
         File f1, f2;
         while ((temp=readLineByTail())!=null){
@@ -53,8 +53,14 @@ public class RecoverFile {
             if((temp=temp.trim()).length()>0){
                 pArr = temp.split(">>>");
                 if (pArr.length==2) {
-                    f1 = new File(pArr[0].trim());
-                    f2 = new File(pArr[1].trim());
+                    newPath=pArr[0].trim();
+                    oldPath=pArr[1].trim();
+                    if (!validPath(newPath) || !validPath(oldPath)){
+                        System.out.println("非指定目录，拒绝操作！"+temp);
+                        continue;
+                    }
+                    f1 = new File(newPath);
+                    f2 = new File(oldPath);
                     if (!f1.exists() && f2.exists()){
                         boolean b = f2.renameTo(f1);
                         if (!b)
